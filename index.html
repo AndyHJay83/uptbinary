@@ -9,7 +9,7 @@
     <title>UptBinary - Mind Reader</title>
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="web/manifest.json" />
     
     <style>
         * {
@@ -98,15 +98,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
         }
         
         .chatgpt-interface {
             max-width: 800px;
             margin: 0 auto;
             padding-top: 80px;
-            position: relative;
-            z-index: 1000;
         }
         
         .chatgpt-header {
@@ -347,6 +344,138 @@
             transform: translateX(24px);
         }
         
+        .spectator-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 80px;
+        }
+        
+        .spectator-title {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-subtitle {
+            font-size: 1.125rem;
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 2rem;
+        }
+        
+        .reset-button {
+            width: 100%;
+            height: 64px;
+            background: #2563eb;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-results {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .spectator-panel {
+            flex: 1;
+        }
+        
+        .spectator-panel-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .spectator-panel-content {
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 0.75rem;
+            max-height: 128px;
+            overflow-y: auto;
+        }
+        
+        .spectator-choice {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+        
+        .spectator-controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .spectator-controls.active {
+            display: flex;
+        }
+        
+        .controls-container {
+            max-width: 400px;
+            padding: 0 1.5rem;
+        }
+        
+        .controls-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-section {
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-section-title {
+            font-size: 1.25rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .spectator-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .spectator-button {
+            width: 96px;
+            height: 96px;
+            background: transparent;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .hide-controls-button {
+            width: 100%;
+            height: 64px;
+            background: #4b5563;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
         .ios-stopwatch {
             position: fixed;
             top: 0;
@@ -357,7 +486,7 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 500;
         }
         
         .ios-stopwatch.active {
@@ -429,22 +558,6 @@
             margin-bottom: 0.25rem;
         }
         
-        .binary-interface-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 200;
-            pointer-events: auto;
-        }
-        
-        .binary-interface-overlay.active {
-            display: block;
-        }
-        
         @media (max-width: 768px) {
             .title {
                 font-size: 2rem;
@@ -478,7 +591,9 @@
             <h1 class="title">Mind Reader</h1>
             
             <button class="button" onclick="showPage('settings')">Settings</button>
+            <button class="button" onclick="showPage('filter', false)">Read Minds</button>
             <button class="button" onclick="showPage('filter', true)">PERFORM</button>
+            <button class="button" onclick="showPage('spectator')">Spectator Mode</button>
         </div>
 
         <!-- Settings Page -->
@@ -494,7 +609,7 @@
                 <div class="settings-item" onclick="selectWordList(this, 'all-names')">All Names</div>
                 <div class="settings-item" onclick="selectWordList(this, 'boys-names')">Boys Names</div>
                 <div class="settings-item" onclick="selectWordList(this, 'girls-names')">Girls Names</div>
-                <div class="settings-item" onclick="selectSequence(this, 'months-starsigns')">Months & Star Signs</div>
+                <div class="settings-item" onclick="selectWordList(this, 'months-starsigns')">Months & Star Signs</div>
             </div>
             
             <div class="settings-section">
@@ -535,130 +650,228 @@
             </div>
         </div>
 
-        <!-- Filter Page (PERFORM Mode) -->
+        <!-- Filter Page -->
         <div id="filter-page" class="page">
             <button class="back-button" onclick="showPage('home')">←</button>
             
-            <!-- iOS Stopwatch Underlay -->
+            <!-- iOS Stopwatch Overlay for PERFORM mode -->
             <div id="ios-stopwatch" class="ios-stopwatch">
                 <div class="stopwatch-container">
-                    <div class="stopwatch-time" id="stopwatch-time">00:00.00</div>
+                    <div class="stopwatch-time">00:00.00</div>
                     
                     <div class="stopwatch-controls">
-                        <button class="stopwatch-button stopwatch-reset" onclick="resetStopwatch()">Reset</button>
-                        <button class="stopwatch-button stopwatch-start" onclick="toggleStopwatch()" id="start-button">Start</button>
-                        <button class="stopwatch-button stopwatch-lap" onclick="lapStopwatch()">Lap</button>
+                        <button class="stopwatch-button stopwatch-reset">Reset</button>
+                        <button class="stopwatch-button stopwatch-start">Start</button>
+                        <button class="stopwatch-button stopwatch-lap">Lap</button>
                     </div>
                     
                     <div class="stopwatch-laps">
                         <div class="stopwatch-laps-title">Lap Times</div>
-                        <div id="lap-times"></div>
+                        <div class="stopwatch-lap-time">1. 00:00.00</div>
+                        <div class="stopwatch-lap-time">2. 00:00.00</div>
+                        <div class="stopwatch-lap-time">3. 00:00.00</div>
                     </div>
                 </div>
             </div>
             
-            <!-- Binary Interface Overlay (50% opacity) -->
-            <div class="binary-interface-overlay" id="binary-interface-overlay">
-                <div class="chatgpt-interface">
-                    <div class="chatgpt-header">
-                        <h1 class="chatgpt-title">ChatGPT</h1>
-                        <button class="get-plus-button">Get Plus</button>
+            <div class="chatgpt-interface">
+                <div class="chatgpt-header">
+                    <h1 class="chatgpt-title">ChatGPT</h1>
+                    <button class="get-plus-button">Get Plus</button>
+                </div>
+                
+                <div class="chat-message">
+                    <p>Here are 10 random words:</p>
+                    <div class="word-list">
+                        <div class="word-item">
+                            <span>Necessary</span>
+                            <div class="dot active" id="dot-0"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Toothbrush</span>
+                            <div class="dot" id="dot-1"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Remember</span>
+                            <div class="dot" id="dot-2"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Loveable</span>
+                            <div class="dot" id="dot-3"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Clementine</span>
+                            <div class="dot" id="dot-4"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Swingset</span>
+                            <div class="dot" id="dot-5"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Elephant</span>
+                            <div class="dot" id="dot-6"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Umbrella</span>
+                            <div class="dot" id="dot-7"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Antidote</span>
+                            <div class="dot" id="dot-8"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Impression</span>
+                            <div class="dot" id="dot-9"></div>
+                        </div>
                     </div>
-                    
-                    <div class="chat-message">
-                        <p>Here are 10 random words:</p>
-                        <div class="word-list">
-                            <div class="word-item">
-                                <span>Necessary</span>
-                                <div class="dot active" id="dot-0"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Toothbrush</span>
-                                <div class="dot" id="dot-1"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Remember</span>
-                                <div class="dot" id="dot-2"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Loveable</span>
-                                <div class="dot" id="dot-3"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Clementine</span>
-                                <div class="dot" id="dot-4"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Swingset</span>
-                                <div class="dot" id="dot-5"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Elephant</span>
-                                <div class="dot" id="dot-6"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Umbrella</span>
-                                <div class="dot" id="dot-7"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Antidote</span>
-                                <div class="dot" id="dot-8"></div>
-                            </div>
-                            <div class="word-item">
-                                <span>Impression</span>
-                                <div class="dot" id="dot-9"></div>
-                            </div>
+                </div>
+                
+                <div class="current-letter" id="current-letter">N</div>
+                
+                <div class="word-pools">
+                    <div class="word-pool">
+                        <div class="pool-title">Left Pattern (10)</div>
+                        <div class="pool-content" id="left-words">
+                            <div class="pool-word">Necessary</div>
+                            <div class="pool-word">Toothbrush</div>
+                            <div class="pool-word">Remember</div>
+                            <div class="pool-word">Loveable</div>
+                            <div class="pool-word">Clementine</div>
+                            <div class="pool-word">Swingset</div>
+                            <div class="pool-word">Elephant</div>
+                            <div class="pool-word">Umbrella</div>
+                            <div class="pool-word">Antidote</div>
+                            <div class="pool-word">Impression</div>
                         </div>
                     </div>
                     
-                    <div class="current-letter" id="current-letter">N</div>
-                    
-                    <div class="word-pools">
-                        <div class="word-pool">
-                            <div class="pool-title">Left Pattern (10)</div>
-                            <div class="pool-content" id="left-words">
-                                <div class="pool-word">Necessary</div>
-                                <div class="pool-word">Toothbrush</div>
-                                <div class="pool-word">Remember</div>
-                                <div class="pool-word">Loveable</div>
-                                <div class="pool-word">Clementine</div>
-                                <div class="pool-word">Swingset</div>
-                                <div class="pool-word">Elephant</div>
-                                <div class="pool-word">Umbrella</div>
-                                <div class="pool-word">Antidote</div>
-                                <div class="pool-word">Impression</div>
-                            </div>
-                        </div>
-                        
-                        <div class="word-pool">
-                            <div class="pool-title">Right Pattern (10)</div>
-                            <div class="pool-content" id="right-words">
-                                <div class="pool-word">Necessary</div>
-                                <div class="pool-word">Toothbrush</div>
-                                <div class="pool-word">Remember</div>
-                                <div class="pool-word">Loveable</div>
-                                <div class="pool-word">Clementine</div>
-                                <div class="pool-word">Swingset</div>
-                                <div class="pool-word">Elephant</div>
-                                <div class="pool-word">Umbrella</div>
-                                <div class="pool-word">Antidote</div>
-                                <div class="pool-word">Impression</div>
-                            </div>
+                    <div class="word-pool">
+                        <div class="pool-title">Right Pattern (10)</div>
+                        <div class="pool-content" id="right-words">
+                            <div class="pool-word">Necessary</div>
+                            <div class="pool-word">Toothbrush</div>
+                            <div class="pool-word">Remember</div>
+                            <div class="pool-word">Loveable</div>
+                            <div class="pool-word">Clementine</div>
+                            <div class="pool-word">Swingset</div>
+                            <div class="pool-word">Elephant</div>
+                            <div class="pool-word">Umbrella</div>
+                            <div class="pool-word">Antidote</div>
+                            <div class="pool-word">Impression</div>
                         </div>
                     </div>
+                </div>
+                
+                <div class="binary-buttons">
+                    <button class="binary-button" onclick="makeBinaryChoice('L')" id="l-button">L</button>
+                    <button class="binary-button" onclick="makeBinaryChoice('R')" id="r-button">R</button>
+                </div>
+                
+                <div class="game-status" id="game-status" style="display: none;">
+                    Game Complete! All letters processed.
+                </div>
+                
+                <button class="play-again-button" onclick="resetGame()" id="play-again-button" style="display: none;">
+                    Play Again
+                </button>
+            </div>
+        </div>
+
+        <!-- Spectator Page -->
+        <div id="spectator-page" class="page spectator-content">
+            <button class="back-button" onclick="showPage('home')">←</button>
+            
+            <h1 class="spectator-title">Performance Mode</h1>
+            <p class="spectator-subtitle">Two-person binary word guessing</p>
+            
+            <p style="text-align: center; margin-bottom: 2rem;">
+                Long press anywhere to reveal spectator buttons
+            </p>
+            
+            <button class="reset-button" onclick="resetSpectatorGame()">Reset Game</button>
+            
+            <div class="chat-message">
+                <p>Here are 10 random words:</p>
+                <div class="word-list">
+                    <div class="word-item">
+                        <span>Necessary</span>
+                        <div class="dot active" id="spectator-dot-0"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Toothbrush</span>
+                        <div class="dot" id="spectator-dot-1"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Remember</span>
+                        <div class="dot" id="spectator-dot-2"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Loveable</span>
+                        <div class="dot" id="spectator-dot-3"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Clementine</span>
+                        <div class="dot" id="spectator-dot-4"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Swingset</span>
+                        <div class="dot" id="spectator-dot-5"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Elephant</span>
+                        <div class="dot" id="spectator-dot-6"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Umbrella</span>
+                        <div class="dot" id="spectator-dot-7"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Antidote</span>
+                        <div class="dot" id="spectator-dot-8"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Impression</span>
+                        <div class="dot" id="spectator-dot-9"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="current-letter" id="spectator-current-letter">N</div>
+            
+            <div class="spectator-results">
+                <div class="spectator-panel">
+                    <div class="spectator-panel-title">Spectator 1 (0 choices)</div>
+                    <div class="pool-content" id="spectator1-choices"></div>
+                </div>
+                
+                <div class="spectator-panel">
+                    <div class="spectator-panel-title">Spectator 2 (0 choices)</div>
+                    <div class="pool-content" id="spectator2-choices"></div>
+                </div>
+            </div>
+            
+            <!-- Spectator Controls Overlay -->
+            <div class="spectator-controls" id="spectator-controls">
+                <div class="controls-container">
+                    <h2 class="controls-title">Spectator Controls</h2>
                     
-                    <div class="binary-buttons">
-                        <button class="binary-button" onclick="makeBinaryChoice('L')" id="l-button">L</button>
-                        <button class="binary-button" onclick="makeBinaryChoice('R')" id="r-button">R</button>
+                    <div class="spectator-section">
+                        <h3 class="spectator-section-title">Spectator 1</h3>
+                        <div class="spectator-buttons">
+                            <button class="spectator-button" onclick="makeSpectatorChoice(1, 'L')">L</button>
+                            <button class="spectator-button" onclick="makeSpectatorChoice(1, 'R')">R</button>
+                        </div>
                     </div>
                     
-                    <div class="game-status" id="game-status" style="display: none;">
-                        Game Complete! All letters processed.
+                    <div class="spectator-section">
+                        <h3 class="spectator-section-title">Spectator 2</h3>
+                        <div class="spectator-buttons">
+                            <button class="spectator-button" onclick="makeSpectatorChoice(2, 'L')">L</button>
+                            <button class="spectator-button" onclick="makeSpectatorChoice(2, 'R')">R</button>
+                        </div>
                     </div>
                     
-                    <button class="play-again-button" onclick="resetGame()" id="play-again-button" style="display: none;">
-                        Play Again
-                    </button>
+                    <button class="hide-controls-button" onclick="hideSpectatorControls()">Hide Controls</button>
                 </div>
             </div>
         </div>
@@ -668,12 +881,10 @@
         // Game state
         let currentLetterIndex = 0;
         let letterSequence = 'NTRLCSEUAI';
-        
-        // Stopwatch state
-        let stopwatchRunning = false;
-        let stopwatchInterval;
-        let stopwatchTime = 0;
-        let lapTimes = [];
+        let isPerformMode = false;
+        let spectator1Choices = [];
+        let spectator2Choices = [];
+        let longPressTimer = null;
         
         // Page navigation
         function showPage(pageName, performMode = false) {
@@ -690,86 +901,19 @@
                 document.getElementById(pageName + '-page').classList.add('active');
             }
             
-            // Handle PERFORM mode - always show stopwatch underlay and binary overlay
-            if (pageName === 'filter') {
+            // Handle PERFORM mode
+            if (pageName === 'filter' && performMode) {
+                isPerformMode = true;
                 document.getElementById('ios-stopwatch').classList.add('active');
-                document.getElementById('binary-interface-overlay').classList.add('active');
+            } else {
+                isPerformMode = false;
+                document.getElementById('ios-stopwatch').classList.remove('active');
             }
             
             // Reset game state for filter page
             if (pageName === 'filter') {
                 resetGame();
             }
-        }
-        
-        // Stopwatch functions
-        function toggleStopwatch() {
-            if (stopwatchRunning) {
-                stopStopwatch();
-            } else {
-                startStopwatch();
-            }
-        }
-        
-        function startStopwatch() {
-            stopwatchRunning = true;
-            document.getElementById('start-button').textContent = 'Stop';
-            document.getElementById('start-button').style.background = '#dc2626';
-            
-            stopwatchInterval = setInterval(() => {
-                stopwatchTime += 10;
-                updateStopwatchDisplay();
-            }, 10);
-        }
-        
-        function stopStopwatch() {
-            stopwatchRunning = false;
-            document.getElementById('start-button').textContent = 'Start';
-            document.getElementById('start-button').style.background = '#10b981';
-            
-            clearInterval(stopwatchInterval);
-        }
-        
-        function resetStopwatch() {
-            stopStopwatch();
-            stopwatchTime = 0;
-            lapTimes = [];
-            updateStopwatchDisplay();
-            updateLapTimes();
-        }
-        
-        function lapStopwatch() {
-            if (stopwatchRunning) {
-                lapTimes.push(stopwatchTime);
-                updateLapTimes();
-            }
-        }
-        
-        function updateStopwatchDisplay() {
-            const minutes = Math.floor(stopwatchTime / 60000);
-            const seconds = Math.floor((stopwatchTime % 60000) / 1000);
-            const centiseconds = Math.floor((stopwatchTime % 1000) / 10);
-            
-            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
-            document.getElementById('stopwatch-time').textContent = timeString;
-        }
-        
-        function updateLapTimes() {
-            const lapContainer = document.getElementById('lap-times');
-            lapContainer.innerHTML = '';
-            
-            lapTimes.forEach((lapTime, index) => {
-                const minutes = Math.floor(lapTime / 60000);
-                const seconds = Math.floor((lapTime % 60000) / 1000);
-                const centiseconds = Math.floor((lapTime % 1000) / 10);
-                
-                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
-                
-                const lapElement = document.createElement('div');
-                lapElement.className = 'stopwatch-lap-time';
-                lapElement.textContent = `${index + 1}. ${timeString}`;
-                lapContainer.appendChild(lapElement);
-            });
         }
         
         // Binary choice logic
@@ -903,6 +1047,83 @@
         function toggleSetting(element) {
             element.classList.toggle('active');
         }
+        
+        // Spectator functions
+        function makeSpectatorChoice(spectator, choice) {
+            if (spectator === 1) {
+                spectator1Choices.push(choice);
+                updateSpectatorDisplay(1, spectator1Choices);
+            } else {
+                spectator2Choices.push(choice);
+                updateSpectatorDisplay(2, spectator2Choices);
+            }
+            
+            // Also make the binary choice for the main game
+            makeBinaryChoice(choice);
+        }
+        
+        function updateSpectatorDisplay(spectator, choices) {
+            const container = document.getElementById(`spectator${spectator}-choices`);
+            container.innerHTML = '';
+            
+            choices.forEach(choice => {
+                const choiceElement = document.createElement('div');
+                choiceElement.className = 'spectator-choice';
+                choiceElement.textContent = choice;
+                container.appendChild(choiceElement);
+            });
+            
+            // Update title with count
+            const title = document.querySelector(`.spectator-panel:nth-child(${spectator}) .spectator-panel-title`);
+            title.textContent = `Spectator ${spectator} (${choices.length} choices)`;
+        }
+        
+        function resetSpectatorGame() {
+            spectator1Choices = [];
+            spectator2Choices = [];
+            updateSpectatorDisplay(1, spectator1Choices);
+            updateSpectatorDisplay(2, spectator2Choices);
+            resetGame();
+        }
+        
+        function showSpectatorControls() {
+            document.getElementById('spectator-controls').classList.add('active');
+        }
+        
+        function hideSpectatorControls() {
+            document.getElementById('spectator-controls').classList.remove('active');
+        }
+        
+        // Long press detection for spectator mode
+        document.addEventListener('mousedown', function() {
+            longPressTimer = setTimeout(showSpectatorControls, 2000);
+        });
+        
+        document.addEventListener('mouseup', function() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+        
+        document.addEventListener('mouseleave', function() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+        
+        // Touch events for mobile
+        document.addEventListener('touchstart', function() {
+            longPressTimer = setTimeout(showSpectatorControls, 2000);
+        });
+        
+        document.addEventListener('touchend', function() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
