@@ -1,0 +1,22 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-report/
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
