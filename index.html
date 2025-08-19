@@ -105,10 +105,8 @@
             max-width: 800px;
             margin: 0 auto;
             padding-top: 80px;
-            opacity: 0.5;
-            pointer-events: auto;
             position: relative;
-            z-index: 100;
+            z-index: 1000;
         }
         
         .chatgpt-header {
@@ -355,11 +353,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: #000000;
+            background: rgba(0, 0, 0, 0.9);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 50;
+            z-index: 100;
         }
         
         .ios-stopwatch.active {
@@ -431,6 +429,22 @@
             margin-bottom: 0.25rem;
         }
         
+        .binary-interface-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 200;
+            pointer-events: auto;
+        }
+        
+        .binary-interface-overlay.active {
+            display: block;
+        }
+        
         @media (max-width: 768px) {
             .title {
                 font-size: 2rem;
@@ -480,7 +494,7 @@
                 <div class="settings-item" onclick="selectWordList(this, 'all-names')">All Names</div>
                 <div class="settings-item" onclick="selectWordList(this, 'boys-names')">Boys Names</div>
                 <div class="settings-item" onclick="selectWordList(this, 'girls-names')">Girls Names</div>
-                <div class="settings-item" onclick="selectWordList(this, 'months-starsigns')">Months & Star Signs</div>
+                <div class="settings-item" onclick="selectSequence(this, 'months-starsigns')">Months & Star Signs</div>
             </div>
             
             <div class="settings-section">
@@ -521,7 +535,7 @@
             </div>
         </div>
 
-        <!-- Filter Page -->
+        <!-- Filter Page (PERFORM Mode) -->
         <div id="filter-page" class="page">
             <button class="back-button" onclick="showPage('home')">←</button>
             
@@ -543,106 +557,109 @@
                 </div>
             </div>
             
-            <div class="chatgpt-interface">
-                <div class="chatgpt-header">
-                    <h1 class="chatgpt-title">ChatGPT</h1>
-                    <button class="get-plus-button">Get Plus</button>
-                </div>
-                
-                <div class="chat-message">
-                    <p>Here are 10 random words:</p>
-                    <div class="word-list">
-                        <div class="word-item">
-                            <span>Necessary</span>
-                            <div class="dot active" id="dot-0"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Toothbrush</span>
-                            <div class="dot" id="dot-1"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Remember</span>
-                            <div class="dot" id="dot-2"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Loveable</span>
-                            <div class="dot" id="dot-3"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Clementine</span>
-                            <div class="dot" id="dot-4"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Swingset</span>
-                            <div class="dot" id="dot-5"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Elephant</span>
-                            <div class="dot" id="dot-6"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Umbrella</span>
-                            <div class="dot" id="dot-7"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Antidote</span>
-                            <div class="dot" id="dot-8"></div>
-                        </div>
-                        <div class="word-item">
-                            <span>Impression</span>
-                            <div class="dot" id="dot-9"></div>
-                        </div>
+            <!-- Binary Interface Overlay (50% opacity) -->
+            <div class="binary-interface-overlay" id="binary-interface-overlay">
+                <div class="chatgpt-interface">
+                    <div class="chatgpt-header">
+                        <h1 class="chatgpt-title">ChatGPT</h1>
+                        <button class="get-plus-button">Get Plus</button>
                     </div>
-                </div>
-                
-                <div class="current-letter" id="current-letter">N</div>
-                
-                <div class="word-pools">
-                    <div class="word-pool">
-                        <div class="pool-title">Left Pattern (10)</div>
-                        <div class="pool-content" id="left-words">
-                            <div class="pool-word">Necessary</div>
-                            <div class="pool-word">Toothbrush</div>
-                            <div class="pool-word">Remember</div>
-                            <div class="pool-word">Loveable</div>
-                            <div class="pool-word">Clementine</div>
-                            <div class="pool-word">Swingset</div>
-                            <div class="pool-word">Elephant</div>
-                            <div class="pool-word">Umbrella</div>
-                            <div class="pool-word">Antidote</div>
-                            <div class="pool-word">Impression</div>
+                    
+                    <div class="chat-message">
+                        <p>Here are 10 random words:</p>
+                        <div class="word-list">
+                            <div class="word-item">
+                                <span>Necessary</span>
+                                <div class="dot active" id="dot-0"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Toothbrush</span>
+                                <div class="dot" id="dot-1"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Remember</span>
+                                <div class="dot" id="dot-2"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Loveable</span>
+                                <div class="dot" id="dot-3"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Clementine</span>
+                                <div class="dot" id="dot-4"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Swingset</span>
+                                <div class="dot" id="dot-5"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Elephant</span>
+                                <div class="dot" id="dot-6"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Umbrella</span>
+                                <div class="dot" id="dot-7"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Antidote</span>
+                                <div class="dot" id="dot-8"></div>
+                            </div>
+                            <div class="word-item">
+                                <span>Impression</span>
+                                <div class="dot" id="dot-9"></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="word-pool">
-                        <div class="pool-title">Right Pattern (10)</div>
-                        <div class="pool-content" id="right-words">
-                            <div class="pool-word">Necessary</div>
-                            <div class="pool-word">Toothbrush</div>
-                            <div class="pool-word">Remember</div>
-                            <div class="pool-word">Loveable</div>
-                            <div class="pool-word">Clementine</div>
-                            <div class="pool-word">Swingset</div>
-                            <div class="pool-word">Elephant</div>
-                            <div class="pool-word">Umbrella</div>
-                            <div class="pool-word">Antidote</div>
-                            <div class="pool-word">Impression</div>
+                    <div class="current-letter" id="current-letter">N</div>
+                    
+                    <div class="word-pools">
+                        <div class="word-pool">
+                            <div class="pool-title">Left Pattern (10)</div>
+                            <div class="pool-content" id="left-words">
+                                <div class="pool-word">Necessary</div>
+                                <div class="pool-word">Toothbrush</div>
+                                <div class="pool-word">Remember</div>
+                                <div class="pool-word">Loveable</div>
+                                <div class="pool-word">Clementine</div>
+                                <div class="pool-word">Swingset</div>
+                                <div class="pool-word">Elephant</div>
+                                <div class="pool-word">Umbrella</div>
+                                <div class="pool-word">Antidote</div>
+                                <div class="pool-word">Impression</div>
+                            </div>
+                        </div>
+                        
+                        <div class="word-pool">
+                            <div class="pool-title">Right Pattern (10)</div>
+                            <div class="pool-content" id="right-words">
+                                <div class="pool-word">Necessary</div>
+                                <div class="pool-word">Toothbrush</div>
+                                <div class="pool-word">Remember</div>
+                                <div class="pool-word">Loveable</div>
+                                <div class="pool-word">Clementine</div>
+                                <div class="pool-word">Swingset</div>
+                                <div class="pool-word">Elephant</div>
+                                <div class="pool-word">Umbrella</div>
+                                <div class="pool-word">Antidote</div>
+                                <div class="pool-word">Impression</div>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div class="binary-buttons">
+                        <button class="binary-button" onclick="makeBinaryChoice('L')" id="l-button">L</button>
+                        <button class="binary-button" onclick="makeBinaryChoice('R')" id="r-button">R</button>
+                    </div>
+                    
+                    <div class="game-status" id="game-status" style="display: none;">
+                        Game Complete! All letters processed.
+                    </div>
+                    
+                    <button class="play-again-button" onclick="resetGame()" id="play-again-button" style="display: none;">
+                        Play Again
+                    </button>
                 </div>
-                
-                <div class="binary-buttons">
-                    <button class="binary-button" onclick="makeBinaryChoice('L')" id="l-button">L</button>
-                    <button class="binary-button" onclick="makeBinaryChoice('R')" id="r-button">R</button>
-                </div>
-                
-                <div class="game-status" id="game-status" style="display: none;">
-                    Game Complete! All letters processed.
-                </div>
-                
-                <button class="play-again-button" onclick="resetGame()" id="play-again-button" style="display: none;">
-                    Play Again
-                </button>
             </div>
         </div>
     </div>
@@ -673,9 +690,10 @@
                 document.getElementById(pageName + '-page').classList.add('active');
             }
             
-            // Handle PERFORM mode - always show stopwatch underlay
+            // Handle PERFORM mode - always show stopwatch underlay and binary overlay
             if (pageName === 'filter') {
                 document.getElementById('ios-stopwatch').classList.add('active');
+                document.getElementById('binary-interface-overlay').classList.add('active');
             }
             
             // Reset game state for filter page
