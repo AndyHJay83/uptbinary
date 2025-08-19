@@ -16,6 +16,10 @@ export default function HomePage() {
     router.push('/filter');
   };
 
+  const handleSpectator = () => {
+    router.push('/spectator');
+  };
+
   return (
     <View className="flex-1 bg-black justify-center items-center">
       <Text className="text-white text-4xl font-bold mb-16">Mind Reader</Text>
@@ -28,17 +32,24 @@ export default function HomePage() {
       </TouchableOpacity>
       
       <TouchableOpacity
-        className="w-64 h-16 bg-transparent border border-white rounded-lg justify-center items-center"
+        className="w-64 h-16 bg-transparent border border-white rounded-lg justify-center items-center mb-6"
         onPress={handleReadMinds}
       >
         <Text className="text-white text-xl font-semibold">Read Minds</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        className="w-64 h-16 bg-transparent border border-white rounded-lg justify-center items-center mt-6"
+        className="w-64 h-16 bg-transparent border border-white rounded-lg justify-center items-center mb-6"
         onPress={handlePerform}
       >
         <Text className="text-white text-xl font-semibold">PERFORM</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        className="w-64 h-16 bg-transparent border border-white rounded-lg justify-center items-center"
+        onPress={handleSpectator}
+      >
+        <Text className="text-white text-xl font-semibold">Spectator Mode</Text>
       </TouchableOpacity>
     </View>
   );
