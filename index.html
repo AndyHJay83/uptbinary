@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Binary Word Guessing App with ChatGPT Interface" />
+    
+    <title>UptBinary - Mind Reader</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #000000;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .home-page {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+        
+        .button {
+            width: 256px;
+            height: 64px;
+            background: transparent;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .page {
+            display: none;
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 48px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chatgpt-interface {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 80px;
+        }
+        
+        .chatgpt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .chatgpt-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .get-plus-button {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .chat-message {
+            background: #1f2937;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .word-list {
+            margin-top: 1rem;
+        }
+        
+        .word-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            margin-left: 12px;
+            display: none;
+        }
+        
+        .dot.active {
+            display: block;
+        }
+        
+        .current-letter {
+            background: #2563eb;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .word-pools {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .word-pool {
+            flex: 1;
+        }
+        
+        .pool-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .pool-content {
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 0.75rem;
+            max-height: 128px;
+            overflow-y: auto;
+        }
+        
+        .pool-word {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .binary-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .binary-button {
+            width: 128px;
+            height: 64px;
+            background: transparent;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .binary-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .binary-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .game-status {
+            background: #10b981;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .play-again-button {
+            width: 100%;
+            height: 64px;
+            background: #2563eb;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-again-button:hover {
+            background: #1d4ed8;
+        }
+        
+        .settings-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-top: 80px;
+        }
+        
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+        
+        .settings-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .settings-item {
+            background: transparent;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            padding: 12px 16px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .settings-item.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .input-field {
+            width: 100%;
+            height: 48px;
+            background: transparent;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            padding: 0 16px;
+            font-size: 1.125rem;
+            margin-top: 0.5rem;
+        }
+        
+        .input-field::placeholder {
+            color: #666;
+        }
+        
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle {
+            width: 48px;
+            height: 24px;
+            background: #333;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle.active {
+            background: #10b981;
+        }
+        
+        .toggle-thumb {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle.active .toggle-thumb {
+            transform: translateX(24px);
+        }
+        
+        .spectator-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 80px;
+        }
+        
+        .spectator-title {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-subtitle {
+            font-size: 1.125rem;
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 2rem;
+        }
+        
+        .reset-button {
+            width: 100%;
+            height: 64px;
+            background: #2563eb;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-results {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .spectator-panel {
+            flex: 1;
+        }
+        
+        .spectator-panel-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .spectator-panel-content {
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 0.75rem;
+            max-height: 128px;
+            overflow-y: auto;
+        }
+        
+        .spectator-choice {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+        
+        .spectator-controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .spectator-controls.active {
+            display: flex;
+        }
+        
+        .controls-container {
+            max-width: 400px;
+            padding: 0 1.5rem;
+        }
+        
+        .controls-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-section {
+            margin-bottom: 2rem;
+        }
+        
+        .spectator-section-title {
+            font-size: 1.25rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .spectator-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .spectator-button {
+            width: 96px;
+            height: 96px;
+            background: transparent;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .hide-controls-button {
+            width: 100%;
+            height: 64px;
+            background: #4b5563;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .ios-stopwatch {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+        }
+        
+        .ios-stopwatch.active {
+            display: flex;
+        }
+        
+        .stopwatch-container {
+            background: #111827;
+            border-radius: 24px;
+            padding: 2rem;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .stopwatch-time {
+            font-size: 4rem;
+            font-weight: 300;
+            font-family: monospace;
+            margin-bottom: 2rem;
+        }
+        
+        .stopwatch-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stopwatch-button {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .stopwatch-reset {
+            background: #dc2626;
+        }
+        
+        .stopwatch-start {
+            background: #10b981;
+        }
+        
+        .stopwatch-lap {
+            background: #2563eb;
+        }
+        
+        .stopwatch-laps {
+            width: 100%;
+        }
+        
+        .stopwatch-laps-title {
+            text-align: center;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stopwatch-lap-time {
+            color: #9ca3af;
+            text-align: center;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .button {
+                width: 200px;
+                height: 56px;
+                font-size: 1.125rem;
+            }
+            
+            .word-pools {
+                flex-direction: column;
+            }
+            
+            .binary-buttons {
+                gap: 1rem;
+            }
+            
+            .binary-button {
+                width: 100px;
+                height: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Home Page -->
+        <div id="home-page" class="home-page">
+            <h1 class="title">Mind Reader</h1>
+            
+            <button class="button" onclick="showPage('settings')">Settings</button>
+            <button class="button" onclick="showPage('filter', false)">Read Minds</button>
+            <button class="button" onclick="showPage('filter', true)">PERFORM</button>
+            <button class="button" onclick="showPage('spectator')">Spectator Mode</button>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="page settings-content">
+            <button class="back-button" onclick="showPage('home')">←</button>
+            <h1 class="title">Settings</h1>
+            
+            <div class="settings-section">
+                <h2 class="settings-title">Word List</h2>
+                <div class="settings-item selected" onclick="selectWordList(this, 'default')">Default Words</div>
+                <div class="settings-item" onclick="selectWordList(this, 'en-uk')">EN-UK Dictionary</div>
+                <div class="settings-item" onclick="selectWordList(this, '19k')">19K Word List</div>
+                <div class="settings-item" onclick="selectWordList(this, 'all-names')">All Names</div>
+                <div class="settings-item" onclick="selectWordList(this, 'boys-names')">Boys Names</div>
+                <div class="settings-item" onclick="selectWordList(this, 'girls-names')">Girls Names</div>
+                <div class="settings-item" onclick="selectWordList(this, 'months-starsigns')">Months & Star Signs</div>
+            </div>
+            
+            <div class="settings-section">
+                <h2 class="settings-title">Letter Sequence</h2>
+                <div class="settings-item selected" onclick="selectSequence(this, 'custom')">Custom (NTRLCSEUAI)</div>
+                <div class="settings-item" onclick="selectSequence(this, 'full-alphabet')">Full Alphabet (26)</div>
+                <div class="settings-item" onclick="selectSequence(this, 'seatjk')">SEATJK (6)</div>
+                <div class="settings-item" onclick="selectSequence(this, 'vowels-only')">Vowels Only (5)</div>
+                <div class="settings-item" onclick="selectSequence(this, 'most-frequent')">Most Frequent (Dynamic)</div>
+                
+                <input type="text" class="input-field" placeholder="Enter custom sequence..." maxlength="50">
+            </div>
+            
+            <div class="settings-section">
+                <h2 class="settings-title">Preferences</h2>
+                
+                <div class="toggle-container">
+                    <span>Psychological Profiling</span>
+                    <div class="toggle" onclick="toggleSetting(this)">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+                
+                <div class="toggle-container">
+                    <span>Include Timestamp in Exports</span>
+                    <div class="toggle active" onclick="toggleSetting(this)">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+                
+                <input type="text" class="input-field" placeholder="Default export filename..." value="binary-words">
+            </div>
+            
+            <div class="settings-section">
+                <h2 class="settings-title">App Information</h2>
+                <p>Version: 1.0.0</p>
+                <p>Built with React Native & Expo</p>
+            </div>
+        </div>
+
+        <!-- Filter Page -->
+        <div id="filter-page" class="page">
+            <button class="back-button" onclick="showPage('home')">←</button>
+            
+            <!-- iOS Stopwatch Overlay for PERFORM mode -->
+            <div id="ios-stopwatch" class="ios-stopwatch">
+                <div class="stopwatch-container">
+                    <div class="stopwatch-time">00:00.00</div>
+                    
+                    <div class="stopwatch-controls">
+                        <button class="stopwatch-button stopwatch-reset">Reset</button>
+                        <button class="stopwatch-button stopwatch-start">Start</button>
+                        <button class="stopwatch-button stopwatch-lap">Lap</button>
+                    </div>
+                    
+                    <div class="stopwatch-laps">
+                        <div class="stopwatch-laps-title">Lap Times</div>
+                        <div class="stopwatch-lap-time">1. 00:00.00</div>
+                        <div class="stopwatch-lap-time">2. 00:00.00</div>
+                        <div class="stopwatch-lap-time">3. 00:00.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chatgpt-interface">
+                <div class="chatgpt-header">
+                    <h1 class="chatgpt-title">ChatGPT</h1>
+                    <button class="get-plus-button">Get Plus</button>
+                </div>
+                
+                <div class="chat-message">
+                    <p>Here are 10 random words:</p>
+                    <div class="word-list">
+                        <div class="word-item">
+                            <span>Necessary</span>
+                            <div class="dot active" id="dot-0"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Toothbrush</span>
+                            <div class="dot" id="dot-1"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Remember</span>
+                            <div class="dot" id="dot-2"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Loveable</span>
+                            <div class="dot" id="dot-3"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Clementine</span>
+                            <div class="dot" id="dot-4"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Swingset</span>
+                            <div class="dot" id="dot-5"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Elephant</span>
+                            <div class="dot" id="dot-6"></div>
+                        </div>
+                        <div class="word1-item">
+                            <span>Umbrella</span>
+                            <div class="dot" id="dot-7"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Antidote</span>
+                            <div class="dot" id="dot-8"></div>
+                        </div>
+                        <div class="word-item">
+                            <span>Impression</span>
+                            <div class="dot" id="dot-9"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="current-letter" id="current-letter">N</div>
+                
+                <div class="word-pools">
+                    <div class="word-pool">
+                        <div class="pool-title">Left Pattern (10)</div>
+                        <div class="pool-content" id="left-words">
+                            <div class="pool-word">Necessary</div>
+                            <div class="pool-word">Toothbrush</div>
+                            <div class="pool-word">Remember</div>
+                            <div class="pool-word">Loveable</div>
+                            <div class="pool-word">Clementine</div>
+                            <div class="pool-word">Swingset</div>
+                            <div class="pool-word">Elephant</div>
+                            <div class="pool-word">Umbrella</div>
+                            <div class="pool-word">Antidote</div>
+                            <div class="pool-word">Impression</div>
+                        </div>
+                    </div>
+                    
+                    <div class="word-pool">
+                        <div class="pool-title">Right Pattern (10)</div>
+                        <div class="pool-content" id="right-words">
+                            <div class="pool-word">Necessary</div>
+                            <div class="pool-word">Toothbrush</div>
+                            <div class="pool-word">Remember</div>
+                            <div class="pool-word">Loveable</div>
+                            <div class="pool-word">Clementine</div>
+                            <div class="pool-word">Swingset</div>
+                            <div class="pool-word">Elephant</div>
+                            <div class="pool-word">Umbrella</div>
+                            <div class="pool-word">Antidote</div>
+                            <div class="pool-word">Impression</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="binary-buttons">
+                    <button class="binary-button" onclick="makeBinaryChoice('L')" id="l-button">L</button>
+                    <button class="binary-button" onclick="makeBinaryChoice('R')" id="r-button">R</button>
+                </div>
+                
+                <div class="game-status" id="game-status" style="display: none;">
+                    Game Complete! All letters processed.
+                </div>
+                
+                <button class="play-again-button" onclick="resetGame()" id="play-again-button" style="display: none;">
+                    Play Again
+                </button>
+            </div>
+        </div>
+
+        <!-- Spectator Page -->
+        <div id="spectator-page" class="page spectator-content">
+            <button class="back-button" onclick="showPage('home')">←</button>
+            
+            <h1 class="spectator-title">Performance Mode</h1>
+            <p class="spectator-subtitle">Two-person binary word guessing</p>
+            
+            <p style="text-align: center; margin-bottom: 2rem;">
+                Long press anywhere to reveal spectator buttons
+            </p>
+            
+            <button class="reset-button" onclick="resetSpectatorGame()">Reset Game</button>
+            
+            <div class="chat-message">
+                <p>Here are 10 random words:</p>
+                <div class="word-list">
+                    <div class="word-item">
+                        <span>Necessary</span>
+                        <div class="dot active" id="spectator-dot-0"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Toothbrush</span>
+                        <div class="dot" id="spectator-dot-1"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Remember</span>
+                        <div class="dot" id="spectator-dot-2"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Loveable</span>
+                        <div class="dot" id="spectator-dot-3"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Clementine</span>
+                        <div class="dot" id="spectator-dot-4"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Swingset</span>
+                        <div class="dot" id="spectator-dot-5"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Elephant</span>
+                        <div class="dot" id="spectator-dot-6"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Umbrella</span>
+                        <div class="dot" id="spectator-dot-7"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Antidote</span>
+                        <div class="dot" id="spectator-dot-8"></div>
+                    </div>
+                    <div class="word-item">
+                        <span>Impression</span>
+                        <div class="dot" id="spectator-dot-9"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="current-letter" id="spectator-current-letter">N</div>
+            
+            <div class="spectator-results">
+                <div class="spectator-panel">
+                    <div class="spectator-panel-title">Spectator 1 (0 choices)</div>
+                    <div class="pool-content" id="spectator1-choices"></div>
+                </div>
+                
+                <div class="spectator-panel">
+                    <div class="spectator-panel-title">Spectator 2 (0 choices)</div>
+                    <div class="pool-content" id="spectator2-choices"></div>
+                </div>
+            </div>
+            
+            <!-- Spectator Controls Overlay -->
+            <div class="spectator-controls" id="spectator-controls">
+                <div class="controls-container">
+                    <h2 class="controls-title">Spectator Controls</h2>
+                    
+                    <div class="spectator-section">
+                        <h3 class="spectator-section-title">Spectator 1</h3>
+                        <div class="spectator-buttons">
+                            <button class="spectator-button" onclick="makeSpectatorChoice(1, 'L')">L</button>
+                            <button class="spectator-button" onclick="makeSpectatorChoice(1, 'R')">R</button>
+                        </div>
+                    </div>
+                    
+                    <div class="spectator-section">
+                        <h3 class="spectator-section-title">Spectator 2</h3>
+                        <div class="spectator-buttons">
+                            <button class="spectator-button" onclick="makeSpectatorChoice(2, 'L')">L</button>
+                            <button class="spectator-button" onclick="makeSpectatorChoice(2, 'R')">R</button>
+                        </div>
+                    </div>
+                    
+                    <button class="hide-controls-button" onclick="hideSpectatorControls()">Hide Controls</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let currentLetterIndex = 0;
+        let letterSequence = 'NTRLCSEUAI';
+        let isPerformMode = false;
+        let spectator1Choices = [];
+        let spectator2Choices = [];
+        let longPressTimer = null;
+        
+        // Page navigation
+        function showPage(pageName, performMode = false) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById('home-page').style.display = 'none';
+            
+            // Show selected page
+            if (pageName === 'home') {
+                document.getElementById('home-page').style.display = 'flex';
+            } else {
+                document.getElementById(pageName + '-page').classList.add('active');
+            }
+            
+            // Handle PERFORM mode
+            if (pageName === 'filter' && performMode) {
+                isPerformMode = true;
+                document.getElementById('ios-stopwatch').classList.add('active');
+            } else {
+                isPerformMode = false;
+                document.getElementById('ios-stopwatch').classList.remove('active');
+            }
+            
+            // Reset game state for filter page
+            if (pageName === 'filter') {
+                resetGame();
+            }
+        }
+        
+        // Binary choice logic
+        function makeBinaryChoice(choice) {
+            if (currentLetterIndex >= letterSequence.length) return;
+            
+            // Update word pools based on choice
+            updateWordPools(choice);
+            
+            // Move to next letter
+            currentLetterIndex++;
+            
+            if (currentLetterIndex < letterSequence.length) {
+                // Update current letter display
+                document.getElementById('current-letter').textContent = letterSequence[currentLetterIndex];
+                
+                // Update dot position
+                updateDotPosition(currentLetterIndex);
+                
+                // Update word pool counts
+                updateWordPoolCounts();
+            } else {
+                // Game complete
+                document.getElementById('game-status').style.display = 'block';
+                document.getElementById('play-again-button').style.display = 'block';
+                document.getElementById('l-button').disabled = true;
+                document.getElementById('r-button').disabled = true;
+            }
+        }
+        
+        // Update word pools based on binary choice
+        function updateWordPools(choice) {
+            const words = [
+                "Necessary", "Toothbrush", "Remember", "Loveable", "Clementine",
+                "Swingset", "Elephant", "Umbrella", "Antidote", "Impression"
+            ];
+            
+            const currentLetter = letterSequence[currentLetterIndex];
+            const leftWords = [];
+            const rightWords = [];
+            
+            words.forEach(word => {
+                const hasLetter = word.toUpperCase().includes(currentLetter);
+                
+                // Left Pattern: L=include letter, R=exclude letter
+                if (choice === 'L') {
+                    if (hasLetter) leftWords.push(word);
+                    if (!hasLetter) rightWords.push(word);
+                } else {
+                    if (!hasLetter) leftWords.push(word);
+                    if (hasLetter) rightWords.push(word);
+                }
+            });
+            
+            // Update display
+            updateWordPoolDisplay('left-words', leftWords);
+            updateWordPoolDisplay('right-words', rightWords);
+        }
+        
+        // Update word pool display
+        function updateWordPoolDisplay(containerId, words) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            words.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'pool-word';
+                wordElement.textContent = word;
+                container.appendChild(wordElement);
+            });
+        }
+        
+        // Update word pool counts
+        function updateWordPoolCounts() {
+            const leftCount = document.getElementById('left-words').children.length;
+            const rightCount = document.getElementById('right-words').children.length;
+            
+            document.querySelector('.word-pool:nth-child(1) .pool-title').textContent = `Left Pattern (${leftCount})`;
+            document.querySelector('.word-pool:nth-child(2) .pool-title').textContent = `Right Pattern (${rightCount})`;
+        }
+        
+        // Update dot position
+        function updateDotPosition(index) {
+            // Remove active class from all dots
+            document.querySelectorAll('.dot').forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            // Add active class to current dot
+            if (index < 10) {
+                document.getElementById('dot-' + index).classList.add('active');
+            }
+        }
+        
+        // Reset game
+        function resetGame() {
+            currentLetterIndex = 0;
+            document.getElementById('current-letter').textContent = letterSequence[0];
+            updateDotPosition(0);
+            document.getElementById('game-status').style.display = 'none';
+            document.getElementById('play-again-button').style.display = 'none';
+            document.getElementById('l-button').disabled = false;
+            document.getElementById('r-button').disabled = false;
+            
+            // Reset word pools
+            const allWords = [
+                "Necessary", "Toothbrush", "Remember", "Loveable", "Clementine",
+                "Swingset", "Elephant", "Umbrella", "Antidote", "Impression"
+            ];
+            
+            updateWordPoolDisplay('left-words', allWords);
+            updateWordPoolDisplay('right-words', allWords);
+            updateWordPoolCounts();
+        }
+        
+        // Settings functions
+        function selectWordList(element, id) {
+            document.querySelectorAll('.settings-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+        
+        function selectSequence(element, id) {
+            document.querySelectorAll('.settings-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+        
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+        }
+        
+        // Spectator functions
+        function makeSpectatorChoice(spectator, choice) {
+            if (spectator === 1) {
+                spectator1Choices.push(choice);
+                updateSpectatorDisplay(1, spectator1Choices);
+            } else {
+                spectator2Choices.push(choice);
+                updateSpectatorDisplay(2, spectator2Choices);
+            }
+            
+            // Also make the binary choice for the main game
+            makeBinaryChoice(choice);
+        }
+        
+        function updateSpectatorDisplay(spectator, choices) {
+            const container = document.getElementById(`spectator${spectator}-choices`);
+            container.innerHTML = '';
+            
+            choices.forEach(choice => {
+                const choiceElement = document.createElement('div');
+                choiceElement.className = 'spectator-choice';
+                choiceElement.textContent = choice;
+                container.appendChild(choiceElement);
+            });
+            
+            // Update title with count
+            const title = document.querySelector(`.spectator-panel:nth-child(${spectator}) .spectator-panel-title`);
+            title.textContent = `Spectator ${spectator} (${choices.length} choices)`;
+        }
+        
+        function resetSpectatorGame() {
+            spectator1Choices = [];
+            spectator2Choices = [];
+            updateSpectatorDisplay(1, spectator1Choices);
+            updateSpectatorDisplay(2, spectator2Choices);
+            resetGame();
+        }
+        
+        function showSpectatorControls() {
+            document.getElementById('spectator-controls').classList.add('active');
+        }
+        
+        function hideSpectatorControls() {
+            document.getElementById('spectator-controls').classList.remove('active');
+        }
+        
+        // Long press detection for spectator mode
+        document.addEventListener('mousedown', function() {
+            longPressTimer = setTimeout(showSpectatorControls, 2000);
+        });
+        
+        document.addEventListener('mouseup', function() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+        
+        document.addEventListener('mouseleave', function() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+        
+        // Touch events for mobile
+        document.addEventListener('touchstart', function() {
+            longPressTimer = setTimeout(showSpectatorControls, 2000);
+        });
+        
+        document.addEventListener('touchend', function() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial state
+            updateWordPoolCounts();
+        });
+    </script>
+</body>
+</html>
